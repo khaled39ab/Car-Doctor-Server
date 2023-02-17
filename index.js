@@ -20,10 +20,19 @@ const run = async () => {
 
     try {
         const servicesCollection = client.db("MotorService").collection("services");
+        const productsCollection = client.db("MotorService").collection("products");
 
         app.get('/services', async (req, res) => {
             const query = {};
             const cursor = servicesCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        });
+
+
+        app.get('/products', async (req, res) => {
+            const query = {};
+            const cursor = productsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result)
         });
