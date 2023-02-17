@@ -21,14 +21,21 @@ const run = async () => {
     try {
         const servicesCollection = client.db("MotorService").collection("services");
 
+        app.get('/services', async (req, res) => {
+            const query = {};
+            const cursor = servicesCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        });
+
     }
     finally {
-
+        // await client.close();
     }
 }
 
 
-run().catch(console.dir);
+run().catch(err => console.log(err));
 
 
 app.get('/', (req, res) => {
@@ -37,4 +44,4 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
     console.log('Server running from', port);
-})
+});
