@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 4000;
 
 const app = express();
@@ -21,7 +21,13 @@ const run = async () => {
     try {
         const servicesCollection = client.db("MotorService").collection("services");
         const productsCollection = client.db("MotorService").collection("products");
+        const ordersCollection = client.db("MotorService").collection("order");
 
+        /* 
+        ================================================================================
+        ++++++++++++++++++++++++++++++   Services Section  +++++++++++++++++++++++++++++
+        ================================================================================
+        */
         app.get('/services', async (req, res) => {
             const query = {};
             const cursor = servicesCollection.find(query);
@@ -29,7 +35,37 @@ const run = async () => {
             res.send(result)
         });
 
+        app.get('/service/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const cursor = await servicesCollection.findOne(query);
+            res.send(cursor)
+        });
 
+
+        /* 
+        ================================================================================
+        ++++++++++++++++++++++++++++++    Orders Section   +++++++++++++++++++++++++++++
+        ================================================================================
+        */
+        app.get('/orders', async (req, res) => {
+            const query = {};
+            const cursor = ordersCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        });
+
+        app.post('/orders', async(req, res) =>{
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order)
+            res.send(result);
+        });
+
+        /* 
+        ================================================================================
+        ++++++++++++++++++++++++++++++   Products Section  +++++++++++++++++++++++++++++
+        ================================================================================
+        */
         app.get('/products', async (req, res) => {
             const query = {};
             const cursor = productsCollection.find(query);
