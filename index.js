@@ -76,7 +76,7 @@ const run = async () => {
             const query = { _id: new ObjectId(id) }
             const result = await ordersCollection.deleteOne(query);
             res.send(result);
-        })
+        });
 
 
         /* 
