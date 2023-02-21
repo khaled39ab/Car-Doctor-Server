@@ -63,13 +63,15 @@ const run = async () => {
             res.send(result)
         });
 
+
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await ordersCollection.insertOne(order)
             res.send(result);
         });
+        
 
-        app.delete('/orders', async(req, res) => {
+        app.delete('/orders/:id', async(req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await ordersCollection.deleteOne(query);
