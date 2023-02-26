@@ -116,7 +116,7 @@ const run = async () => {
 }
 
 
-run().catch(err => console.log(err));
+run().catch(err => console.error(err));
 
 
 app.get('/', (req, res) => {
