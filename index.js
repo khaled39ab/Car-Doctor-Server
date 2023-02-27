@@ -24,7 +24,13 @@ const run = async () => {
         const productsCollection = client.db("MotorService").collection("products");
         const ordersCollection = client.db("MotorService").collection("order");
 
-        
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            console.log(user);
+            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' })
+            res.send(carToken)
+        });
+
         /* 
         ================================================================================
         ++++++++++++++++++++++++++++++   Services Section  +++++++++++++++++++++++++++++
