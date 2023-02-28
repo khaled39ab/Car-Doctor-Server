@@ -80,9 +80,9 @@ const run = async () => {
         app.get('/orders', verifyJWT, async (req, res) => {
 
             const decoded = req.decoded;
-            // console.log(decoded);
-            
-            
+            if(decoded.email !== req.query.email){
+                return res.status(403).send({message: 'forbidden access'})
+            };
 
             let query = {};
 
@@ -92,9 +92,6 @@ const run = async () => {
                     email: req.query.email
                 }
             };
-            // if(decoded.email != req.query.email){
-            //     res.status(403).send({message: 'unauthorized access'})
-            // }
 
             const cursor = ordersCollection.find(query);
             const result = await cursor.toArray();
