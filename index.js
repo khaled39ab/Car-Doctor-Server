@@ -17,6 +17,24 @@ const uri = `mongodb+srv://${process.env.MOTOR_USER}:${process.env.MOTOR_PASSWOR
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+const verifyJWT = (req, res, next) => {
+    const authHeaders = req.headers.authorization;
+    // console.log(authHeaders);
+    if (!authHeaders) {
+        return res.status(401).send({ message: 'unauthorized access' })
+    }
+
+    const token = authHeaders.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'unauthorized access' })
+        }
+        req.decoded = decoded;
+        next();
+    });
+};
+
+
 const run = async () => {
 
     try {
@@ -26,9 +44,8 @@ const run = async () => {
 
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            console.log(user);
-            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' })
-            res.send(carToken)
+            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' });
+            res.send({ carToken })
         });
 
         /* 
@@ -57,7 +74,8 @@ const run = async () => {
         ++++++++++++++++++++++++++++++    Orders Section   +++++++++++++++++++++++++++++
         ================================================================================
         */
-        app.get('/orders', async (req, res) => {
+        app.get('/orders', verifyJWT, async (req, res) => {
+
             let query = {};
 
             //for query search
