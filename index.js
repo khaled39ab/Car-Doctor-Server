@@ -19,15 +19,15 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const verifyJWT = (req, res, next) => {
     const authHeaders = req.headers.authorization;
-    // console.log(authHeaders);
+
     if (!authHeaders) {
         return res.status(401).send({ message: 'unauthorized access' })
-    }
-
+    };
     const token = authHeaders.split(' ')[1];
+
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(401).send({ message: 'unauthorized access' })
+            return res.status(403).send({ message: 'Forbidden access' })
         }
         req.decoded = decoded;
         next();
@@ -42,11 +42,14 @@ const run = async () => {
         const productsCollection = client.db("MotorService").collection("products");
         const ordersCollection = client.db("MotorService").collection("order");
 
+
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' });
+            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
             res.send({ carToken })
         });
+
+
 
         /* 
         ================================================================================
@@ -76,6 +79,11 @@ const run = async () => {
         */
         app.get('/orders', verifyJWT, async (req, res) => {
 
+            const decoded = req.decoded;
+            // console.log(decoded);
+            
+            
+
             let query = {};
 
             //for query search
@@ -84,6 +92,9 @@ const run = async () => {
                     email: req.query.email
                 }
             };
+            // if(decoded.email != req.query.email){
+            //     res.status(403).send({message: 'unauthorized access'})
+            // }
 
             const cursor = ordersCollection.find(query);
             const result = await cursor.toArray();
