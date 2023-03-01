@@ -78,18 +78,19 @@ const run = async () => {
         ================================================================================
         */
         app.get('/orders', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const queryEmail = req.query.email;
 
-            const decoded = req.decoded;
-            if(decoded.email !== req.query.email){
-                return res.status(403).send({message: 'forbidden access'})
+            if (decodedEmail !== queryEmail) {
+                return res.status(403).send({ message: 'forbidden access' })
             };
 
             let query = {};
 
             //for query search
-            if (req.query.email) {
+            if (queryEmail) {
                 query = {
-                    email: req.query.email
+                    email: queryEmail
                 }
             };
 
