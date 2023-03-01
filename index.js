@@ -19,12 +19,12 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const verifyJWT = (req, res, next) => {
     const authHeaders = req.headers.authorization;
-
     if (!authHeaders) {
         return res.status(401).send({ message: 'unauthorized access' })
     };
-    const token = authHeaders.split(' ')[1];
 
+    const token = authHeaders.split(' ')[1];
+    
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).send({ message: 'Forbidden access' })
@@ -45,7 +45,7 @@ const run = async () => {
 
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
             res.send({ carToken })
         });
 
@@ -81,9 +81,9 @@ const run = async () => {
             const decodedEmail = req.decoded.email;
             const queryEmail = req.query.email;
 
-            // if (decodedEmail !== queryEmail) {
-            //     return res.status(403).send({ message: 'forbidden access' })
-            // };
+            if (decodedEmail !== queryEmail) {
+                return res.status(403).send({ message: 'forbidden access' })
+            };
 
             let query = {};
 
