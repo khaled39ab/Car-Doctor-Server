@@ -81,9 +81,9 @@ const run = async () => {
             const decodedEmail = req.decoded.email;
             const queryEmail = req.query.email;
 
-            if (decodedEmail !== queryEmail) {
-                return res.status(403).send({ message: 'forbidden access' })
-            };
+            // if (decodedEmail !== queryEmail) {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // };
 
             let query = {};
 
