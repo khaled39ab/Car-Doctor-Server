@@ -17,14 +17,14 @@ const uri = `mongodb+srv://${process.env.MOTOR_USER}:${process.env.MOTOR_PASSWOR
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-/* const verifyJWT = (req, res, next) => {
+const verifyJWT = (req, res, next) => {
     const authHeaders = req.headers.authorization;
     if (!authHeaders) {
         return res.status(401).send({ message: 'unauthorized access' })
     };
 
     const token = authHeaders.split(' ')[1];
-    
+
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).send({ message: 'Forbidden access' })
@@ -33,7 +33,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
         next();
     });
 };
-*/
+
 
 const run = async () => {
 
@@ -43,12 +43,17 @@ const run = async () => {
         const ordersCollection = client.db("MotorService").collection("order");
 
 
-        /* app.post('/jwt', (req, res) => {
+        app.post('/jwt', (req, res) => {
             const user = req.body;
             const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
             res.send({ carToken })
         });
-        */
+
+
+        // app.post('/jwtCar', (req, res) =>{
+        //     const user = req.body;
+        //     console.log(user);
+        // })
 
 
         /* 
@@ -77,11 +82,13 @@ const run = async () => {
         ++++++++++++++++++++++++++++++    Orders Section   +++++++++++++++++++++++++++++
         ================================================================================
         */
-        app.get('/orders', async (req, res) => {
-            // const decodedEmail = req.decoded.email;
+        app.get('/orders', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
             const queryEmail = req.query.email;
 
-            // if (decodedEmail !== queryEm  
+            if (decodedEmail !== queryEmail) {
+                res.status(403).send({ message: 'unauthorized access' })
+            }
 
             let query = {};
 
