@@ -17,7 +17,7 @@ const uri = `mongodb+srv://${process.env.MOTOR_USER}:${process.env.MOTOR_PASSWOR
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-const verifyJWT = (req, res, next) => {
+/* const verifyJWT = (req, res, next) => {
     const authHeaders = req.headers.authorization;
     if (!authHeaders) {
         return res.status(401).send({ message: 'unauthorized access' })
@@ -33,7 +33,7 @@ const verifyJWT = (req, res, next) => {
         next();
     });
 };
-
+*/
 
 const run = async () => {
 
@@ -43,12 +43,12 @@ const run = async () => {
         const ordersCollection = client.db("MotorService").collection("order");
 
 
-        app.post('/jwt', (req, res) => {
+        /* app.post('/jwt', (req, res) => {
             const user = req.body;
             const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
             res.send({ carToken })
         });
-
+        */
 
 
         /* 
@@ -77,13 +77,11 @@ const run = async () => {
         ++++++++++++++++++++++++++++++    Orders Section   +++++++++++++++++++++++++++++
         ================================================================================
         */
-        app.get('/orders', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded.email;
+        app.get('/orders', async (req, res) => {
+            // const decodedEmail = req.decoded.email;
             const queryEmail = req.query.email;
 
-            if (decodedEmail !== queryEmail) {
-                return res.status(403).send({ message: 'forbidden access' })
-            };
+            // if (decodedEmail !== queryEm  
 
             let query = {};
 
