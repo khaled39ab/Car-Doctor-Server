@@ -17,22 +17,6 @@ const uri = `mongodb+srv://${process.env.MOTOR_USER}:${process.env.MOTOR_PASSWOR
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-/* const verifyJWT = (req, res, next) => {
-    const authHeaders = req.headers.authorization;
-    if (!authHeaders) {
-        return res.status(401).send({ message: 'unauthorized access' })
-    };
-
-    const token = authHeaders.split(' ')[1];
-
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(403).send({ message: 'Forbidden access' })
-        }
-        req.decoded = decoded;
-        next();
-    });
-}; */
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -45,7 +29,7 @@ function verifyJWT(req, res, next) {
         if (err) {
             return res.status(403).send({ message: 'forbidden access' })
         }
-        res.decoded = decoded;
+        req.decoded = decoded;
         next();
     });
 }
@@ -58,13 +42,6 @@ const run = async () => {
         const productsCollection = client.db("MotorService").collection("products");
         const ordersCollection = client.db("MotorService").collection("order");
 
-
-        /* app.post('/jwt', (req, res) => {
-            const user = req.body;
-            const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
-            res.send({ carToken })
-        });
- */
 
         app.post('/jwtCar', (req, res) => {
             const user = req.body;
@@ -100,12 +77,13 @@ const run = async () => {
         ================================================================================
         */
         app.get('/orders', verifyJWT, async (req, res) => {
-            // const decodedEmail = req.decoded.email;
+            const decodedEmail = req.decoded.email;
             const queryEmail = req.query.email;
+            console.log(decodedEmail);
 
-            // if (decodedEmail !== queryEmail) {
-            //     res.status(403).send({ message: 'unauthorized access' })
-            // }
+            if (decodedEmail !== queryEmail) {
+                res.status(403).send({ message: 'unauthorized access' })
+            }
 
             let query = {};
 
@@ -122,14 +100,14 @@ const run = async () => {
         });
 
 
-        app.post('/orders', async (req, res) => {
+        app.post('/orders', verifyJWT, async (req, res) => {
             const order = req.body;
             const result = await ordersCollection.insertOne(order)
             res.send(result);
         });
 
 
-        app.patch('/orders/:id', async (req, res) => {
+        app.patch('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const status = req.body.status;
             const query = { _id: new ObjectId(id) };
@@ -143,7 +121,7 @@ const run = async () => {
         });
 
 
-        app.delete('/orders/:id', async (req, res) => {
+        app.delete('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await ordersCollection.deleteOne(query);
