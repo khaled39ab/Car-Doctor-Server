@@ -17,7 +17,7 @@ const uri = `mongodb+srv://${process.env.MOTOR_USER}:${process.env.MOTOR_PASSWOR
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-const verifyJWT = (req, res, next) => {
+/* const verifyJWT = (req, res, next) => {
     const authHeaders = req.headers.authorization;
     if (!authHeaders) {
         return res.status(401).send({ message: 'unauthorized access' })
@@ -32,7 +32,23 @@ const verifyJWT = (req, res, next) => {
         req.decoded = decoded;
         next();
     });
-};
+}; */
+
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: "unauthorized access" })
+    }
+
+    const carToken = authHeader.split(' ')[1];
+    jwt.verify(carToken, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'forbidden access' })
+        }
+        res.decoded = decoded;
+        next();
+    });
+}
 
 
 const run = async () => {
@@ -43,17 +59,18 @@ const run = async () => {
         const ordersCollection = client.db("MotorService").collection("order");
 
 
-        app.post('/jwt', (req, res) => {
+        /* app.post('/jwt', (req, res) => {
             const user = req.body;
             const carToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
             res.send({ carToken })
         });
+ */
 
-
-        // app.post('/jwtCar', (req, res) =>{
-        //     const user = req.body;
-        //     console.log(user);
-        // })
+        app.post('/jwtCar', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '12h' });
+            res.send({ token });
+        });
 
 
         /* 
@@ -83,12 +100,12 @@ const run = async () => {
         ================================================================================
         */
         app.get('/orders', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded.email;
+            // const decodedEmail = req.decoded.email;
             const queryEmail = req.query.email;
 
-            if (decodedEmail !== queryEmail) {
-                res.status(403).send({ message: 'unauthorized access' })
-            }
+            // if (decodedEmail !== queryEmail) {
+            //     res.status(403).send({ message: 'unauthorized access' })
+            // }
 
             let query = {};
 
