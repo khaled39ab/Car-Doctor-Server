@@ -8,8 +8,17 @@ const port = process.env.PORT || 4000;
 const app = express();
 
 //----  Middleware ---------
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
+const corsConfig = {
+    origin: "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+};
+
+app.use(cors(corsConfig));
+app.options(cors(corsConfig));
+
 
 
 //++++++++++   mongodb connection  ++++++++++++++++++
